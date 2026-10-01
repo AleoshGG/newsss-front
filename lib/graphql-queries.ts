@@ -211,7 +211,8 @@ export const RUN_MARKETING_PIPELINE = `
       campaignType: $campaignType
       translateNonEnglish: $translateNonEnglish
     ) {
-      id
+      clustersFound
+      itemsProcessed
     }
   }
 `;
