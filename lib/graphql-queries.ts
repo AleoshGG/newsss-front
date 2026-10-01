@@ -177,3 +177,41 @@ export const FETCH_AND_SAVE_NEWS_ARTICLES = `
     }
   }
 `;
+
+// ── Marketing Campaigns ──────────────────────────────────────────────────
+
+export const GET_MARKETING_CAMPAIGNS = `
+  query GetMarketingCampaigns($limit: Int, $status: String) {
+    getMarketingCampaigns(limit: $limit, status: $status) {
+      id
+      topicLabel
+      campaignType
+      hook
+      body
+      cta
+      hashtags
+      status
+      createdAt
+    }
+  }
+`;
+
+export const RUN_MARKETING_PIPELINE = `
+  mutation RunMarketingPipeline(
+    $limitPerSource: Int!
+    $nClusters: Int!
+    $minIntentScore: Float!
+    $campaignType: String!
+    $translateNonEnglish: Boolean!
+  ) {
+    runMarketingPipeline(
+      limitPerSource: $limitPerSource
+      nClusters: $nClusters
+      minIntentScore: $minIntentScore
+      campaignType: $campaignType
+      translateNonEnglish: $translateNonEnglish
+    ) {
+      id
+    }
+  }
+`;

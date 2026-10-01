@@ -31,12 +31,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/" className="font-black tracking-tight text-sm uppercase">
                 Newsss
               </Link>
-              <Link
-                href="/settings"
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Configuracion
-              </Link>
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/campaigns"
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Campañas
+                </Link>
+                <Link
+                  href="/settings"
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Configuración
+                </Link>
+              </div>
             </div>
           </nav>
           {children}
