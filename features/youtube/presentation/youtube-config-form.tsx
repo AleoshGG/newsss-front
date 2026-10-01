@@ -38,8 +38,13 @@ export function YoutubeConfigForm({ currentConfig }: Props) {
   
   const predefinedIds = AI_CHANNELS.map(c => c.id);
   const initialCustomChannels = (currentConfig.channelIds || []).filter(id => !predefinedIds.includes(id));
+  const initialPredefinedChannels = (currentConfig.channelIds || []).filter(id => predefinedIds.includes(id));
+  
   const [customChannels, setCustomChannels] = useState<string[]>(initialCustomChannels);
+  const [selectedPredefinedChannels, setSelectedPredefinedChannels] = useState<string[]>(initialPredefinedChannels);
   const [newChannel, setNewChannel] = useState('');
+  
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(currentConfig.languages || []);
 
   const handleAddKeyword = () => {
     const trimmed = newKeyword.trim();
@@ -65,6 +70,22 @@ export function YoutubeConfigForm({ currentConfig }: Props) {
     setCustomChannels(customChannels.filter(c => c !== ch));
   };
 
+  const togglePredefinedChannel = (id: string) => {
+    if (selectedPredefinedChannels.includes(id)) {
+      setSelectedPredefinedChannels(selectedPredefinedChannels.filter(c => c !== id));
+    } else {
+      setSelectedPredefinedChannels([...selectedPredefinedChannels, id]);
+    }
+  };
+
+  const toggleLanguage = (lang: string) => {
+    if (selectedLanguages.includes(lang)) {
+      setSelectedLanguages(selectedLanguages.filter(l => l !== lang));
+    } else {
+      setSelectedLanguages([...selectedLanguages, lang]);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -80,6 +101,12 @@ export function YoutubeConfigForm({ currentConfig }: Props) {
       <input type="hidden" name="keywords" value={keywords.join(',')} />
       {customChannels.map(c => (
         <input key={c} type="hidden" name="channelIds" value={c} />
+      ))}
+      {selectedPredefinedChannels.map(c => (
+        <input key={`pre-${c}`} type="hidden" name="channelIds" value={c} />
+      ))}
+      {selectedLanguages.map(l => (
+        <input key={`lang-${l}`} type="hidden" name="languages" value={l} />
       ))}
 
       {/* Keywords */}
@@ -118,9 +145,8 @@ export function YoutubeConfigForm({ currentConfig }: Props) {
             <div key={channel.id} className="flex items-center space-x-2">
               <Checkbox 
                 id={`channel-${channel.id}`} 
-                name="channelIds" 
-                value={channel.id} 
-                defaultChecked={(currentConfig.channelIds || []).includes(channel.id)} 
+                checked={selectedPredefinedChannels.includes(channel.id)}
+                onCheckedChange={() => togglePredefinedChannel(channel.id)}
               />
               <label 
                 htmlFor={`channel-${channel.id}`} 
@@ -170,18 +196,16 @@ export function YoutubeConfigForm({ currentConfig }: Props) {
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="lang-es" 
-              name="languages" 
-              value="es" 
-              defaultChecked={(currentConfig.languages || []).includes('es')} 
+              checked={selectedLanguages.includes('es')}
+              onCheckedChange={() => toggleLanguage('es')}
             />
             <label htmlFor="lang-es" className="text-sm font-medium leading-none">Español (Latinoamérica y Europa)</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="lang-en" 
-              name="languages" 
-              value="en" 
-              defaultChecked={(currentConfig.languages || []).includes('en')} 
+              checked={selectedLanguages.includes('en')}
+              onCheckedChange={() => toggleLanguage('en')}
             />
             <label htmlFor="lang-en" className="text-sm font-medium leading-none">Inglés (Estados Unidos, Europa, etc.)</label>
           </div>

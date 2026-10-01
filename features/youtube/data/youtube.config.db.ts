@@ -1,4 +1,6 @@
-// Mock configuration - stored in memory only
+import { gqlFetch } from '@/lib/graphql-client';
+import { GET_YOUTUBE_CONFIG } from '@/lib/graphql-queries';
+
 export interface YouTubeSearchConfig {
   id?: number;
   keywords?: string[];
@@ -8,20 +10,30 @@ export interface YouTubeSearchConfig {
   lastSearchAt?: Date | null;
 }
 
-let mockConfig: YouTubeSearchConfig = {
-  id: 1,
-  keywords: [],
-  channelIds: [],
-  languages: ['es', 'en'],
-  maxResults: 2,
-  lastSearchAt: undefined,
-};
-
 export async function getSearchConfig(): Promise<YouTubeSearchConfig> {
-  return { ...mockConfig };
+  const data = await gqlFetch<{ getYoutubeConfig: YouTubeSearchConfig }>(
+    GET_YOUTUBE_CONFIG
+  );
+  return data.getYoutubeConfig;
 }
 
-export async function saveSearchConfig(config: Partial<YouTubeSearchConfig>): Promise<YouTubeSearchConfig> {
-  mockConfig = { ...mockConfig, ...config };
-  return mockConfig;
+import { UPDATE_YOUTUBE_CONFIG } from '@/lib/graphql-queries';
+
+// Stub: write-back pending a Mutation endpoint in the backend
+export async function saveSearchConfig(
+  config: Partial<YouTubeSearchConfig>
+): Promise<YouTubeSearchConfig> {
+  const inputConfig = {
+    keywords: config.keywords || [],
+    channelIds: config.channelIds || [],
+    languages: config.languages || [],
+    maxResults: config.maxResults || 5,
+  };
+
+  const data = await gqlFetch<{ updateYoutubeConfig: YouTubeSearchConfig }>(
+    UPDATE_YOUTUBE_CONFIG,
+    { config: inputConfig }
+  );
+
+  return data.updateYoutubeConfig;
 }

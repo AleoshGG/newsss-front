@@ -4,13 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { updateGithubSearchConfig } from './data/github.config.db';
 
 export async function saveGithubConfigAction(data: {
-  keywords: string;
+  keywords: string[];
   daysActive: number;
   minStars: number;
   minForks: number;
   requireLicense: boolean;
-  selectedTopics: string;
-  selectedLanguages: string;
+  selectedTopics: string[];
+  selectedLanguages: string[];
   maxResults: number;
 }) {
   await updateGithubSearchConfig(data);
@@ -28,5 +28,5 @@ export async function syncGithubReposAction() {
 
 export async function getGithubLastSearchAtAction() {
   const config = await getGithubSearchConfig();
-  return config.lastSearchAt ? config.lastSearchAt.toISOString() : null;
+  return config.lastSearchAt ? String(config.lastSearchAt) : null;
 }

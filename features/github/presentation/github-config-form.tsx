@@ -31,7 +31,7 @@ export function GithubConfigForm({ currentConfig }: { currentConfig: any }) {
   const [isPending, startTransition] = useTransition();
 
   const [keywords, setKeywords] = useState<string[]>(
-    typeof currentConfig.keywords === 'string' ? JSON.parse(currentConfig.keywords) : []
+    Array.isArray(currentConfig.keywords) ? currentConfig.keywords : []
   );
   const [newKeyword, setNewKeyword] = useState('');
   
@@ -42,12 +42,12 @@ export function GithubConfigForm({ currentConfig }: { currentConfig: any }) {
   const [maxResults, setMaxResults] = useState(currentConfig.maxResults || 50);
   
   const [selectedTopics, setSelectedTopics] = useState<string[]>(
-    typeof currentConfig.selectedTopics === 'string' ? JSON.parse(currentConfig.selectedTopics) : []
+    Array.isArray(currentConfig.selectedTopics) ? currentConfig.selectedTopics : []
   );
   const [newTopic, setNewTopic] = useState('');
   
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
-    typeof currentConfig.selectedLanguages === 'string' ? JSON.parse(currentConfig.selectedLanguages) : []
+    Array.isArray(currentConfig.selectedLanguages) ? currentConfig.selectedLanguages : []
   );
   const [newLanguage, setNewLanguage] = useState('');
 
@@ -108,14 +108,14 @@ export function GithubConfigForm({ currentConfig }: { currentConfig: any }) {
     startTransition(async () => {
       try {
         await saveGithubConfigAction({
-          keywords: JSON.stringify(keywords),
+          keywords,
           daysActive,
           minStars,
           minForks,
           requireLicense,
           maxResults,
-          selectedTopics: JSON.stringify(selectedTopics),
-          selectedLanguages: JSON.stringify(selectedLanguages),
+          selectedTopics,
+          selectedLanguages,
         });
         toast.success('Configuración de GitHub guardada exitosamente');
       } catch (error) {

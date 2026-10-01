@@ -1,22 +1,34 @@
-import { YouTubeVideo } from './youtube.entity';
+import { gqlFetch } from '@/lib/graphql-client';
+import { GET_RECENT_YOUTUBE_VIDEOS } from '@/lib/graphql-queries';
+import { YouTubeVideo, YouTubeVideoMetrics } from './youtube.entity';
 
-// Mock data - no database persistence
-const mockYoutubeVideos: Map<string, YouTubeVideo> = new Map();
-
-export async function saveVideo(video: YouTubeVideo): Promise<void> {
-  mockYoutubeVideos.set(video.id, video);
+interface ApiVideo {
+  id: string;
+  title: string;
+  channel: string;
+  publishedAt: string;
+  url: string;
+  thumbnailUrl: string;
+  transcript: string;
+  metrics: YouTubeVideoMetrics;
 }
 
-export async function getVideos(limit?: number): Promise<YouTubeVideo[]> {
-  const videos = Array.from(mockYoutubeVideos.values())
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-  
-  if (limit) {
-    return videos.slice(0, limit);
-  }
-  return videos;
-}
-
-export async function countVideos(): Promise<number> {
-  return mockYoutubeVideos.size;
+export async function getVideos(limit = 50): Promise<YouTubeVideo[]> {
+  const data = await gqlFetch<{ getRecentYoutubeVideos: ApiVideo[] }>(
+    GET_RECENT_YOUTUBE_VIDEOS,
+    { limit }
+  );
+  return data.getRecentYoutubeVideos.map(
+    (v) =>
+      new YouTubeVideo(
+        v.id,
+        v.title,
+        v.channel,
+        new Date(v.publishedAt),
+        v.url,
+        v.metrics,
+        v.thumbnailUrl,
+        v.transcript
+      )
+  );
 }

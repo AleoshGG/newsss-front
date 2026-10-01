@@ -12,8 +12,21 @@ export async function syncYouTubeVideos(shouldRevalidate = true): Promise<void> 
   }
 }
 
+import { saveSearchConfig } from './data/youtube.config.db';
+
 export async function updateSearchConfigAction(_prevState: unknown, formData: FormData): Promise<void> {
-  // Config is stored in memory only, no persistence needed
+  const keywordsStr = formData.get('keywords') as string;
+  const keywords = keywordsStr ? keywordsStr.split(',').filter(k => k.trim() !== '') : [];
+  const channelIds = formData.getAll('channelIds') as string[];
+  const languages = formData.getAll('languages') as string[];
+  const maxResults = parseInt(formData.get('maxResults') as string, 10) || 5;
+
+  await saveSearchConfig({
+    keywords,
+    channelIds,
+    languages,
+    maxResults
+  });
   
   revalidatePath('/settings');
 }

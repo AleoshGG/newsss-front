@@ -14,10 +14,12 @@ export default async function Home({
   const resolvedParams = await searchParams;
   const tab = resolvedParams.tab || 'youtube';
 
-  // Fetch all data based on current tab
-  const youtubeVideos = tab === 'youtube' ? await getVideos() : [];
-  const githubRepos = tab === 'github' ? await getGithubRepos() : [];
-  const googleNewsArticles = tab === 'googlenews' ? await getGoogleNewsArticles() : [];
+  // Fetch all data for highlights to persist across tabs
+  const [youtubeVideos, githubRepos, googleNewsArticles] = await Promise.all([
+    getVideos(),
+    getGithubRepos(),
+    getGoogleNewsArticles()
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen p-6 sm:p-12 gap-12 bg-background text-foreground">
@@ -32,13 +34,13 @@ export default async function Home({
           currentTab={tab}
           highlights={
             <>
-              {tab === 'youtube' && youtubeVideos.length > 0 && (
+              {youtubeVideos.length > 0 && (
                 <YoutubeHighlightCard video={youtubeVideos[0]} />
               )}
-              {tab === 'github' && githubRepos.length > 0 && (
+              {githubRepos.length > 0 && (
                 <GithubHighlightCard repo={githubRepos[0]} />
               )}
-              {tab === 'googlenews' && googleNewsArticles.length > 0 && (
+              {googleNewsArticles.length > 0 && (
                 <GoogleNewsHighlightCard article={googleNewsArticles[0]} />
               )}
             </>

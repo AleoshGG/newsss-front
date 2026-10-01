@@ -1,28 +1,26 @@
+import { gqlFetch } from '@/lib/graphql-client';
+import { GET_RECENT_NEWS_ARTICLES } from '@/lib/graphql-queries';
 import { GoogleNewsArticleData } from './googlenews.entity';
 
-// Mock data - no database persistence
-const mockGoogleNewsArticles: Map<string, GoogleNewsArticleData> = new Map();
-
-export async function saveGoogleNewsArticle(article: GoogleNewsArticleData): Promise<void> {
-  mockGoogleNewsArticles.set(article.id, article);
-}
-
-export async function saveManyGoogleNewsArticles(articles: GoogleNewsArticleData[]): Promise<void> {
-  for (const article of articles) {
-    mockGoogleNewsArticles.set(article.id, article);
-  }
-}
-
-export async function getGoogleNewsArticles(limit?: number): Promise<GoogleNewsArticleData[]> {
-  const articles = Array.from(mockGoogleNewsArticles.values())
-    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
-
-  if (limit) {
-    return articles.slice(0, limit);
-  }
-  return articles;
-}
-
-export async function countGoogleNewsArticles(): Promise<number> {
-  return mockGoogleNewsArticles.size;
+export async function getGoogleNewsArticles(
+  limit = 50
+): Promise<GoogleNewsArticleData[]> {
+  const data = await gqlFetch<{ getRecentNewsArticles: GoogleNewsArticleData[] }>(
+    GET_RECENT_NEWS_ARTICLES,
+    { limit }
+  );
+  return data.getRecentNewsArticles.map(
+    (a) =>
+      new GoogleNewsArticleData(
+        a.id,
+        a.title,
+        a.link,
+        a.pubDate,
+        a.sourceName,
+        a.sourceUrl,
+        a.fetchedAt,
+        a.imageUrl ?? undefined, // API returns null when absent; entity expects undefined
+        a.content
+      )
+  );
 }

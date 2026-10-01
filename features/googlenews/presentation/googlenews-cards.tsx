@@ -6,7 +6,7 @@ import { ArticleModal } from './article-modal';
 
 export function GoogleNewsHighlightCard({ article }: { article: GoogleNewsArticleData }) {
   return (
-    <Card className="min-w-[320px] sm:min-w-[450px] flex-shrink-0 snap-start flex flex-row overflow-hidden h-[160px] border-primary/20 hover:border-primary/50 transition-colors">
+    <Card className="w-[320px] sm:w-[450px] flex-shrink-0 snap-start flex flex-row overflow-hidden h-[160px] border-primary/20 hover:border-primary/50 transition-colors">
       <div className="w-1/3 flex flex-col items-center justify-center bg-primary/5 p-4 flex-shrink-0 border-r border-border/50 gap-2">
         {article.imageUrl ? (
           <img 

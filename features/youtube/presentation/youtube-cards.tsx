@@ -5,7 +5,7 @@ import { TranscriptModal } from './transcript-modal';
 
 export function YoutubeHighlightCard({ video }: { video: YouTubeVideo }) {
   return (
-    <Card className="min-w-[320px] sm:min-w-[450px] flex-shrink-0 snap-start flex flex-row overflow-hidden h-[160px]">
+    <Card className="w-[320px] sm:w-[450px] flex-shrink-0 snap-start flex flex-row overflow-hidden h-[160px]">
       <div className="w-2/5 relative bg-muted overflow-hidden flex-shrink-0">
         <img
           src={video.thumbnailUrl}

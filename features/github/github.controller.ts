@@ -13,10 +13,10 @@ export async function syncGithubRepos(force = false) {
     }
   }
 
-  // Parse config
-  const keywords: string[] = typeof config.keywords === 'string' ? JSON.parse(config.keywords) : (config.keywords || []);
-  const topics: string[] = typeof config.selectedTopics === 'string' ? JSON.parse(config.selectedTopics) : (config.selectedTopics || []);
-  const languages: string[] = typeof config.selectedLanguages === 'string' ? JSON.parse(config.selectedLanguages) : (config.selectedLanguages || []);
+  // Config arrays come directly from the API as string[] (no JSON.parse needed)
+  const keywords: string[] = Array.isArray(config.keywords) ? config.keywords : [];
+  const topics: string[] = Array.isArray(config.selectedTopics) ? config.selectedTopics : [];
+  const languages: string[] = Array.isArray(config.selectedLanguages) ? config.selectedLanguages : [];
 
   // Build base query constraints
   const baseQueryParts = [];

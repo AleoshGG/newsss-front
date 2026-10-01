@@ -1,35 +1,46 @@
-// Mock configuration - stored in memory only
+import { gqlFetch } from '@/lib/graphql-client';
+import { GET_GITHUB_CONFIG } from '@/lib/graphql-queries';
+
 interface GithubSearchConfig {
   id?: number;
-  keywords?: string | string[];
+  keywords?: string[];
   daysActive?: number;
   minStars?: number;
   minForks?: number;
   requireLicense?: boolean;
-  selectedTopics?: string | string[];
-  selectedLanguages?: string | string[];
+  selectedTopics?: string[];
+  selectedLanguages?: string[];
   maxResults?: number;
   lastSearchAt?: Date | null;
 }
 
-let mockConfig: GithubSearchConfig = {
-  id: 1,
-  keywords: '[]',
-  daysActive: 0,
-  minStars: 0,
-  minForks: 0,
-  requireLicense: false,
-  selectedTopics: '[]',
-  selectedLanguages: '[]',
-  maxResults: 50,
-  lastSearchAt: undefined,
-};
-
 export async function getGithubSearchConfig(): Promise<GithubSearchConfig> {
-  return { ...mockConfig };
+  const data = await gqlFetch<{ getGithubConfig: GithubSearchConfig }>(
+    GET_GITHUB_CONFIG
+  );
+  return data.getGithubConfig;
 }
 
-export async function updateGithubSearchConfig(data: Partial<GithubSearchConfig>) {
-  mockConfig = { ...mockConfig, ...data };
-  return mockConfig;
+import { UPDATE_GITHUB_CONFIG } from '@/lib/graphql-queries';
+
+export async function updateGithubSearchConfig(
+  data: Partial<GithubSearchConfig>
+) {
+  const inputConfig = {
+    keywords: data.keywords || [],
+    daysActive: data.daysActive ?? 2,
+    minStars: data.minStars ?? 50,
+    minForks: data.minForks ?? 10,
+    requireLicense: data.requireLicense ?? false,
+    selectedTopics: data.selectedTopics || [],
+    selectedLanguages: data.selectedLanguages || [],
+    maxResults: data.maxResults ?? 50,
+  };
+
+  const response = await gqlFetch<{ updateGithubConfig: GithubSearchConfig }>(
+    UPDATE_GITHUB_CONFIG,
+    { config: inputConfig }
+  );
+  
+  return response.updateGithubConfig;
 }
