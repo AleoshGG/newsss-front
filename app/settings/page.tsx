@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getSearchConfig as getYoutubeConfig } from '@/features/youtube/data/youtube.config.db';
 import { getGithubSearchConfig } from '@/features/github/data/github.config.db';
 import { getGoogleNewsConfig } from '@/features/googlenews/data/googlenews.config.db';

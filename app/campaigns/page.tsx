@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getCampaignsAction } from '@/features/campaigns/campaigns.actions';
 import { CampaignForm } from '@/features/campaigns/presentation/campaign-form';
 import { CampaignList } from '@/features/campaigns/presentation/campaign-list';
