@@ -3,9 +3,10 @@
 import { useTransition, useEffect, useState } from 'react';
 import { syncYouTubeVideos, getLastSearchAtAction } from '../youtube.controller';
 import { Button } from '@/components/ui/button';
+import { useSync } from '@/providers/sync-provider';
 
 export function SyncButton() {
-  const [isPending, startTransition] = useTransition();
+  const { isGlobalSyncing, startGlobalSync } = useSync();
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
@@ -34,14 +35,16 @@ export function SyncButton() {
   }, [lastSync]);
 
   function handleClick() {
-    startTransition(async () => {
+    const syncProcess = async () => {
       await syncYouTubeVideos();
       const updatedDate = await getLastSearchAtAction();
       if (updatedDate) setLastSync(new Date(updatedDate));
-    });
+    };
+
+    startGlobalSync(syncProcess());
   }
 
-  const isDisabled = isPending || timeLeft > 0;
+  const isDisabled = isGlobalSyncing || timeLeft > 0;
   
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -56,7 +59,7 @@ export function SyncButton() {
       disabled={isDisabled}
       className="text-xs font-semibold"
     >
-      {isPending 
+      {isGlobalSyncing 
         ? '⏳ Sincronizando...' 
         : timeLeft > 0 
           ? `Espera ${formatTime(timeLeft)}` 

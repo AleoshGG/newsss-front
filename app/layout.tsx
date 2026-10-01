@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 import { Toaster } from "@/components/ui/sonner";
+import { SyncProvider } from "@/providers/sync-provider";
 
 export const metadata: Metadata = {
   title: "Newsss",
@@ -24,21 +25,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans antialiased`} suppressHydrationWarning>
-        <nav className="border-b bg-background">
-          <div className="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between">
-            <Link href="/" className="font-black tracking-tight text-sm uppercase">
-              Newsss
-            </Link>
-            <Link
-              href="/settings"
-              className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Configuracion
-            </Link>
-          </div>
-        </nav>
-        {children}
-        <Toaster />
+        <SyncProvider>
+          <nav className="border-b bg-background">
+            <div className="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between">
+              <Link href="/" className="font-black tracking-tight text-sm uppercase">
+                Newsss
+              </Link>
+              <Link
+                href="/settings"
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Configuracion
+              </Link>
+            </div>
+          </nav>
+          {children}
+          <Toaster />
+        </SyncProvider>
       </body>
     </html>
   );

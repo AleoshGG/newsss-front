@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { updateGoogleNewsConfig } from './data/googlenews.config.db';
+import { updateGoogleNewsConfig, getGoogleNewsConfig } from './data/googlenews.config.db';
 
 export async function saveGoogleNewsConfigAction(formData: FormData) {
   try {
@@ -35,25 +35,25 @@ export async function saveGoogleNewsConfigAction(formData: FormData) {
   }
 }
 
-import { fetchGoogleNewsRSS } from './data/googlenews.fetcher';
+import { gqlFetch } from '@/lib/graphql-client';
+import { FETCH_AND_SAVE_NEWS_ARTICLES } from '@/lib/graphql-queries';
 
 export async function syncGoogleNewsArticlesAction(shouldRevalidate = true) {
   try {
-    const articles = await fetchGoogleNewsRSS();
-    
-    // Note: Articles are fetched but not persisted - only visual display is supported
-    // For persistence, call the API endpoints instead
-    
-    // Update lastSearchAt
-    await updateGoogleNewsConfig({ lastSearchAt: new Date() });
+    await gqlFetch(FETCH_AND_SAVE_NEWS_ARTICLES);
     
     if (shouldRevalidate) {
       revalidatePath('/');
     }
     
-    return { success: true, count: articles.length };
+    return { success: true };
   } catch (error) {
     console.error('Error syncing Google News articles:', error);
     return { success: false, error: 'Failed to sync articles' };
   }
+}
+
+export async function getGoogleNewsLastSearchAtAction() {
+  const config = await getGoogleNewsConfig();
+  return config.lastSearchAt ? String(config.lastSearchAt) : null;
 }

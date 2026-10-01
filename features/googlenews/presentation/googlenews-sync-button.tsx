@@ -1,41 +1,73 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { syncGoogleNewsArticlesAction, getGoogleNewsLastSearchAtAction } from '../googlenews.actions';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
-import { toast } from 'sonner';
-import { syncGoogleNewsArticlesAction } from '../googlenews.actions';
+import { useSync } from '@/providers/sync-provider';
 
 export function GoogleNewsSyncButton() {
-  const [isSyncing, setIsSyncing] = useState(false);
+  const { isGlobalSyncing, startGlobalSync } = useSync();
+  const [lastSync, setLastSync] = useState<Date | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
-  const handleSync = async () => {
-    setIsSyncing(true);
-    toast.info('Sincronizando Google News...');
-    try {
-      const result = await syncGoogleNewsArticlesAction(true);
-      if (result.success) {
-        toast.success(`Sincronización exitosa. Se obtuvieron ${result.count} artículos.`);
-      } else {
-        toast.error('Error al sincronizar Google News');
+  useEffect(() => {
+    getGoogleNewsLastSearchAtAction().then(date => {
+      if (date) setLastSync(new Date(date));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!lastSync) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const nextSync = new Date(lastSync.getTime() + 60 * 60 * 1000); // 1 hora después
+      const diff = nextSync.getTime() - now.getTime();
+      return Math.max(0, Math.floor(diff / 1000));
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastSync]);
+
+  function handleClick() {
+    const syncProcess = async () => {
+      const result = await syncGoogleNewsArticlesAction();
+      if (!result.success) {
+        throw new Error('Error al sincronizar Google News');
       }
-    } catch (_error) {
-      toast.error('Error al sincronizar Google News');
-    } finally {
-      setIsSyncing(false);
-    }
+      
+      const updatedDate = await getGoogleNewsLastSearchAtAction();
+      if (updatedDate) setLastSync(new Date(updatedDate));
+    };
+    
+    startGlobalSync(syncProcess());
+  }
+
+  const isDisabled = isGlobalSyncing || timeLeft > 0;
+  
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   };
 
   return (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={handleSync}
-      disabled={isSyncing}
-      className="gap-2"
+    <Button
+      variant="outline"
+      onClick={handleClick}
+      disabled={isDisabled}
+      className="text-xs font-semibold"
     >
-      <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-      {isSyncing ? 'Sincronizando...' : 'Sincronizar Noticias'}
+      {isGlobalSyncing 
+        ? '⏳ Sincronizando...' 
+        : timeLeft > 0 
+          ? `Espera ${formatTime(timeLeft)}` 
+          : 'Actualizar Noticias'}
     </Button>
   );
 }

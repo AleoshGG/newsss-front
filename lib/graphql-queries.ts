@@ -153,3 +153,27 @@ export const UPDATE_GOOGLE_NEWS_CONFIG = `
     }
   }
 `;
+
+export const FETCH_AND_SAVE_YOUTUBE_VIDEOS = `
+  mutation {
+    fetchAndSaveYoutubeVideos {
+      id
+    }
+  }
+`;
+
+export const FETCH_AND_SAVE_GITHUB_REPOS = `
+  mutation {
+    fetchAndSaveGithubRepos {
+      id
+    }
+  }
+`;
+
+export const FETCH_AND_SAVE_NEWS_ARTICLES = `
+  mutation {
+    fetchAndSaveNewsArticles {
+      id
+    }
+  }
+`;

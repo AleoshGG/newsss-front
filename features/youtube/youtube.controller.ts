@@ -1,11 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { fetchAnthropicVideos } from './data/youtube.fetcher';
+import { gqlFetch } from '@/lib/graphql-client';
+import { FETCH_AND_SAVE_YOUTUBE_VIDEOS } from '@/lib/graphql-queries';
+import { getSearchConfig } from './data/youtube.config.db';
 
 export async function syncYouTubeVideos(shouldRevalidate = true): Promise<void> {
-  // Fetch videos but don't persist them (in-memory only)
-  const videos = await fetchAnthropicVideos();
+  await gqlFetch(FETCH_AND_SAVE_YOUTUBE_VIDEOS);
   
   if (shouldRevalidate) {
     revalidatePath('/');
@@ -32,6 +33,6 @@ export async function updateSearchConfigAction(_prevState: unknown, formData: Fo
 }
 
 export async function getLastSearchAtAction(): Promise<Date | null> {
-  // No persistent config
-  return null;
+  const config = await getSearchConfig();
+  return config.lastSearchAt ? new Date(config.lastSearchAt) : null;
 }
